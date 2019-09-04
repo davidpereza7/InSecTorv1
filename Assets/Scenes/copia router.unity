@@ -2409,9 +2409,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79ddef239cee45747b9c4f19cd13faf0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TreadPanel: {fileID: 0}
-  ThreadCorrectionPanel: {fileID: 0}
-  threadTextDisplay: {fileID: 72983738}
+  threatPanel: {fileID: 0}
+  deviceName: {fileID: 0}
+  timePanel: {fileID: 0}
+  ThreatCorrectionsPanel: {fileID: 0}
+  ThreatErrorPanel: {fileID: 0}
+  LevelPanel: {fileID: 0}
+  GameInstructionsPanel: {fileID: 0}
+  tDisplayText:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  tCorrectionDisplayText:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  threatsScore: 0
+  correctionsScore: 0
+  playerLevel: 0
+  nameDisplayText: {fileID: 0}
+  tScoreDisplayText: {fileID: 0}
+  cScoreDisplayText: {fileID: 0}
+  deviceDisplayText: {fileID: 0}
+  Threat1: {fileID: 0}
+  Threat2: {fileID: 0}
+  Threat3: {fileID: 0}
+  Threat4: {fileID: 0}
+  ThreatCorrection1: {fileID: 0}
+  ThreatCorrection2: {fileID: 0}
+  ThreatCorrection3: {fileID: 0}
+  ThreatCorrection4: {fileID: 0}
 --- !u!4 &1651804826
 Transform:
   m_ObjectHideFlags: 0

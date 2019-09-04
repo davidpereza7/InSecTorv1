@@ -15,6 +15,7 @@ public class GameController : MonoBehaviour
     void OnEnable()
     {
         name = PlayerPrefs.GetString("playername");
+        Debug.Log(name);
     }
     void OnDisable()
     {
@@ -42,6 +43,8 @@ public class GameController : MonoBehaviour
     public GameObject questionDisplay;
     public GameObject roundEndDisplay;
     public GameObject menuScreen;
+    public GameObject TimePanel;
+    public GameObject ButtonQuiz;
     // Use this for initialization
     public void Start()
     {
@@ -73,7 +76,7 @@ public class GameController : MonoBehaviour
     private int randqNumberT = 0;
     private int questionCount = 0;
     List<int> RandnumberList = new List<int> { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    int i = 0;
+    //int i = 0;
     private void Randnumber()
     {
         string conn = "URI=file:" + Application.dataPath + "/plugins/insector.db";
@@ -140,9 +143,7 @@ public class GameController : MonoBehaviour
         }
         questionDisplayText.text = questionData.questionText;
 
-        Debug.Log("La pregunta es" + questionData.questionText);
-
-
+        
         reader.Close();
         reader = null;
 
@@ -156,8 +157,8 @@ public class GameController : MonoBehaviour
 
     private void GetA() //Posibles respuestas (3) para la pregunta
     {
-        //Genera un numero aleatorio pra que las respuestas a la misma pregunta no aparezcan en la misma posición
-        //en el answerdisplay
+        //Genera un numero aleatorio para que las threats en la misma posición
+        //en el threatsdisplay
         List<int> Lista1 = new List<int> { 0, 1, 2 };
         List<int> Lista2 = new List<int> { 1, 2, 0 };
         List<int> Lista3 = new List<int> { 2, 1, 0 };
@@ -192,44 +193,31 @@ public class GameController : MonoBehaviour
             Lista6.CopyTo(Listin);
         }
                
-        Debug.Log("La lista utilizada es "+ Listin);
-        Debug.Log("Los numeros aleatorios son" + Listin[0] +Listin[1]+Listin[2]);
-
-
+        
         string conn = "URI=file:" + Application.dataPath + "/plugins/insector.db";
         IDbConnection dbconn;
         dbconn = (IDbConnection)new SqliteConnection(conn);
         dbconn.Open();
-
         
-       
-
         for (int i = 0; i < 3; i++)
         {
                 int q = (Listin[i]);
-                Debug.Log("El valor de q es "+q);
-                //Debug.Log("Las variables para buscar las respuesta y la de colocacion son" + i + q);
+                
                 IDbCommand dbcmd = dbconn.CreateCommand();
                 string sqlQuery = "SELECT  ANSWER_TXT, CORRECT from QUIZ_A  where Q_ID =" + randqNumber + " AND ANSWER_ID_ID = " + i;
-
                 dbcmd.CommandText = sqlQuery;
                 IDataReader reader = dbcmd.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    Debug.Log("Las variables para buscar las respuesta y la de colocacion son" + i + q);
                     questionData.answers[i] = new AnswerData { answerText = (reader.GetString(0)), isCorrect = (reader.GetInt32(1)) };
-                    Debug.Log("Las repuestas son las siguientes" + questionData.answers[i].answerText);
                     answerText[q].text = questionData.answers[i].answerText;
                 }
            
-
             reader.Close();
             reader = null;
-
             dbcmd.Dispose();
             dbcmd = null;
-
 
         }
         dbconn.Close();
@@ -243,7 +231,27 @@ public class GameController : MonoBehaviour
         Debug.Log("Los indicadores para decidir son   " + isCorrect +  playerScore   + questionIndex);
 
         if (questionIndex > 9) { EndRound();}
-        if (playerScore == 7) {SceneManager.LoadScene("MinimumReached");}
+        if (playerScore == 7)
+            {   
+                string conn1 = "URI=file:" + Application.dataPath + "/plugins/insector.db";
+                IDbConnection dbconn1;
+                dbconn1 = (IDbConnection)new SqliteConnection(conn1);
+                dbconn1.Open();
+                IDbCommand dbcmd1 = dbconn1.CreateCommand();
+
+                string sqlQuery1 = "UPDATE PLAYER SET QUIZ_1_PASS = 1  WHERE PLAYER_ID ='" + name + "';";
+                Debug.Log(sqlQuery1);
+                dbcmd1.CommandText = sqlQuery1;
+                IDataReader reader1 = dbcmd1.ExecuteReader();
+            
+                reader1.Close();
+                reader1 = null;
+                dbcmd1.Dispose();
+                dbcmd1 = null;
+                dbconn1.Close();
+                dbconn1 = null;
+                SceneManager.LoadScene("MinimumReached");
+                }
         if (isCorrect == 1)
                 {
                     playerScore += roundData.pointsAddedForCorrectAnswer;
@@ -260,6 +268,7 @@ public class GameController : MonoBehaviour
 
     public void EndRound()
     {
+        
         questionDisplay.SetActive(false);
         roundEndDisplay.SetActive(true);
     }
@@ -273,8 +282,26 @@ public class GameController : MonoBehaviour
     {
         timeRemainingDisplayText.text = Mathf.Round(timeRemaining).ToString();
     }
+    public GameObject Instruction;
+    public void hideInstruction()
+    {
+        
+    Instruction.gameObject.SetActive(false);
 
-     
+    }
+
+    public void SetTimePanel()
+    {
+
+        TimePanel.gameObject.SetActive(true);
+
+    }
+    public void hideButtonQuiz()
+    {
+
+        ButtonQuiz.gameObject.SetActive(false);
+
+    }
     void Update()
     {
         

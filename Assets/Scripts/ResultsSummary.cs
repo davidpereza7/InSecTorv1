@@ -18,7 +18,13 @@ public class ResultsSummary : MonoBehaviour
         timeRemaining = PlayerPrefs.GetFloat("finaltime");
         name = PlayerPrefs.GetString("playername");
     }
-
+    void OnDisable()
+    {
+        PlayerPrefs.SetInt("questions", questionIndex);
+        PlayerPrefs.SetInt("score", playerScore);
+        PlayerPrefs.SetFloat("finaltime", timeRemaining);
+        PlayerPrefs.SetString("playername", name);
+    }
 
     // Start is called before the first frame update
     void Start()

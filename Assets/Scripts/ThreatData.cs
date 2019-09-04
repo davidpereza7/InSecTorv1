@@ -5,6 +5,6 @@ using System.Collections;
 
 public class ThreatData
 {
-    public string ThreatText;
-    public ThreatCorrectionData[] corrections = new ThreatCorrectionData[3];
+    public string threatText;
+    public int ofThreat;
 }
