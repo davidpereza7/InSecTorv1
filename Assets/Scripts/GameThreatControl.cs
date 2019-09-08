@@ -29,6 +29,8 @@ public class GameThreatControl : MonoBehaviour
     public GameObject Level1;
     public GameObject Level2;
     public GameObject GameInstructionsPanel;
+    public GameObject readyButton;
+    public GameObject checkButton;
     private int threatCount = 0;
     private int sceneryNumber = 1;
     private int RandThreatNumer = 0;
@@ -200,64 +202,68 @@ public class GameThreatControl : MonoBehaviour
     public void properThreats()
     {
         //Se recogen los Toggles activados y se comprueba si se han activado correctamente y se cuentan
-        
+        properCount = 0;
         if (threatDataA.threats[0].ofThreat == 1 && Threat1.GetComponent<Toggle>().isOn == true) { proper1 = true; correct1 = true; }
         if (threatDataA.threats[0].ofThreat == 0 && Threat1.GetComponent<Toggle>().isOn == false) { proper1 = false; correct1 = true; }
         if (threatDataA.threats[1].ofThreat == 1 && Threat2.GetComponent<Toggle>().isOn == true) { proper2 = true; correct2 = true; }
         if (threatDataA.threats[1].ofThreat == 0 && Threat2.GetComponent<Toggle>().isOn == false) { proper2 = false ;correct2 = true; }
         if (threatDataA.threats[2].ofThreat == 1 && Threat3.GetComponent<Toggle>().isOn == true) { proper3 = true; correct3 = true; }
         if (threatDataA.threats[2].ofThreat == 0 && Threat3.GetComponent<Toggle>().isOn == false) { proper3 = false; correct3 = true; }
-        if (Threat4.GetComponent<Toggle>().isOn == true &&
-                (threatDataA.threats[0].ofThreat == 0) && 
-                (threatDataA.threats[1].ofThreat == 0) &&
-                (threatDataA.threats[2].ofThreat == 0))
-                    {
-                        proper4 = true;
-                        correct4 = true;
-                    }
-     
-        if (Threat4.GetComponent<Toggle>().isOn == false &&
-                (threatDataA.threats[0].ofThreat == 1) ||
-                (threatDataA.threats[1].ofThreat == 1) ||
-                (threatDataA.threats[2].ofThreat == 1))
-                    {
-                        proper4 = false;
-                        correct4 = true;
-                    }
-        
-        
-        if (correct4 == true && proper1 == false && proper2 == false && proper3 == false && proper4 == true)
-        {
-            properCount = properCount + 1;
-            threatsScore = threatsScore + properCount;
-            Debug.Log(propercCount);
-            tScoreDisplayText.text = properCount.ToString();
-            ShowThreats();
-            //Si acierta todo los proper threats de la lista (Marcando los toggle correctos) seapunta 3 y se va a showCorrections
-        }
+        if (proper1==false && proper2 == false && proper3 == false && Threat4.GetComponent<Toggle>().isOn == true) { proper4 = true; correct4 = true; }
+        if (proper1 == true || proper2 == true || proper3 == true && Threat4.GetComponent<Toggle>().isOn == false) { proper4 = false; correct4 = true; }
 
-        if ((correct1 == true) && (correct2 == true) && (correct3 == true) && (correct4 == true))
+        if (correct1 == true && correct2 == true && correct3 == true && correct4 == true && proper4 == true)
         {
+                Debug.Log("Salida 1");
+                Debug.Log("Apropiados" + proper1 + "  " + proper2 + "   " + proper3 + "   " + proper4);
+                Debug.Log("Pulsado" + correct1 + "  " + correct2 + "   " + correct3 + "   " + correct4);
+                properCount = properCount + 1;
+                threatsScore = threatsScore + properCount;
+                tScoreDisplayText.text = threatsScore.ToString();
+                Debug.Log("deberia ejecutar showThreats");
+                cleanCorrectionsToggles();
+                hideCorrectionsPanel();
+                tryAgain();
+
+         }
+
+        else if (correct1 == true && correct2 == true && correct3 == true && correct4 == true && proper4 != true)
+
+            {
+            Debug.Log("Salida 2");
+            Debug.Log("Apropiados" + proper1 + "  " + proper2 + "   " + proper3 + "   " + proper4);
+            Debug.Log("Pulsado" + correct1 + "  " + correct2 + "   " + correct3 + "   " + correct4);
+
             if (proper1 == true) { properCount = properCount + 1; }
             if (proper2 == true) { properCount = properCount + 1; }
             if (proper3 == true) { properCount = properCount + 1; }
-            randProper = UnityEngine.Random.Range(1, properCount);
+
+            //randProper = UnityEngine.Random.Range(1, properCount);
+            while (threatDataA.threats[randProper].ofThreat != 1)
+            {
+                randProper = UnityEngine.Random.Range(1, properCount);
+            }
             //Se selecciona la amenaza para la que se van a presentar correciones
+
             selectedThreat = threatDataA.threats[randProper].threatText;
 
             threatsScore = threatsScore + properCount;
             tScoreDisplayText.text = threatsScore.ToString();
 
             ShowCorrections();
+
+            }
+        else
+            { 
+            Debug.Log("Salida 3");
+            Debug.Log("Apropiados" + proper1 + "  " + proper2 + "   " + proper3 + "   " + proper4);
+            Debug.Log("Pulsado" + correct1 + "  " + correct2 + "   " + correct3 + "   " + correct4);
+
+            SetThreatErrorPanel();
+
         }
 
-
-        else
-            {
-            Debug.Log("he pasado");
-            SetThreatErrorPanel();
-            }
-    
+        
     }
 
     /////////////////////////////////////////////////////////
@@ -324,8 +330,8 @@ public class GameThreatControl : MonoBehaviour
         {
             
                 IDbCommand dbcmd1 = dbconn1.CreateCommand();
-            string sqlQuery1 = "SELECT  THREAT_TXT ," + nameDevice + " from THREATS  where THREAT_ID = " + i;
-                //string sqlQuery1 = "SELECT  THREAT_TXT from THREATS  where THREAT_ID = " + i + " and SCENERY_ID =" + sceneryNumber;
+            //string sqlQuery1 = "SELECT  THREAT_TXT ," + nameDevice + " from THREATS  where THREAT_ID = " + i;
+            string sqlQuery1 = "SELECT  THREAT_TXT ," + nameDevice + " from THREATS  where THREAT_ID = " + i + " and SCENERY_ID =" + sceneryNumber;
             dbcmd1.CommandText = sqlQuery1;
                 IDataReader reader1 = dbcmd1.ExecuteReader();
 
@@ -430,8 +436,8 @@ public class GameThreatControl : MonoBehaviour
             //string sqlQuery = "SELECT THREAT_SOLUTION_TXT, THREAT_CORRECTION_ID, VALID_FOR_THREAT FROM THREAT_SOLUTION where ROUTER = 1 and THREAT_CORRECTION_LEVEL = 1 AND instr ( VALID_FOR_THREAT, '1-')  ORDER BY random() LIMIT 1;";
             //Primero se prueba si seleccionar la correccion
 
-            string sqlQuery = "SELECT THREAT_SOLUTION_TXT, THREAT_CORRECTION_ID, VALID_FOR_THREAT FROM THREAT_SOLUTION where " +nameDevice +"= 1 and THREAT_CORRECTION_LEVEL = 1  ORDER BY random() LIMIT 1;";
-
+            //string sqlQuery = "SELECT THREAT_SOLUTION_TXT, THREAT_CORRECTION_ID, VALID_FOR_THREAT FROM THREAT_SOLUTION where " +nameDevice +"= 1 and THREAT_CORRECTION_LEVEL = 1  ORDER BY random() LIMIT 1;";
+            string sqlQuery = "SELECT THREAT_SOLUTION_TXT, THREAT_CORRECTION_ID, VALID_FOR_THREAT FROM THREAT_SOLUTION where THREAT_CORRECTION_LEVEL = "+playerLevel+"  ORDER BY random() LIMIT 1;";
             dbcmd.CommandText = sqlQuery;
             IDataReader reader = dbcmd.ExecuteReader();
 
@@ -472,69 +478,62 @@ public class GameThreatControl : MonoBehaviour
     {
 
         //Se recogen los Toggles activados y se comprueba si se han activado correctamente y se cuentan
-
+        propercCount = 0;
         if (tCorrectionDataA.corrections[0].isCorrect == 1 && ThreatCorrection1.GetComponent<Toggle>().isOn == true) { properc1 = true; correctc1 = true; }
         if (tCorrectionDataA.corrections[0].isCorrect == 0 && ThreatCorrection1.GetComponent<Toggle>().isOn == false) { properc1 = false; correctc1 = true; }
         if (tCorrectionDataA.corrections[1].isCorrect == 1 && ThreatCorrection2.GetComponent<Toggle>().isOn == true) { properc2 = true; correctc2 = true; }
         if (tCorrectionDataA.corrections[1].isCorrect == 0 && ThreatCorrection2.GetComponent<Toggle>().isOn == false) { properc2 = false; correctc2 = true; }
         if (tCorrectionDataA.corrections[2].isCorrect == 1 && ThreatCorrection3.GetComponent<Toggle>().isOn == true) { properc3 = true; correctc3 = true; }
         if (tCorrectionDataA.corrections[2].isCorrect == 0 && ThreatCorrection3.GetComponent<Toggle>().isOn == false) { properc3 = false; correctc3 = true; }
-        if (Threat4.GetComponent<Toggle>().isOn == true &&
-                (tCorrectionDataA.corrections[0].isCorrect == 0) &&
-                (tCorrectionDataA.corrections[1].isCorrect == 0) &&
-                (tCorrectionDataA.corrections[2].isCorrect == 0))
-        {
-            properc4 = true;
-            correctc4 = true;
-        }
+        if (properc1 == false && properc2 == false && properc3 == false && ThreatCorrection4.GetComponent<Toggle>().isOn == true) { properc4 = true; correctc4 = true; }
+        if (properc1 == true || properc2 == true || properc3 == true && ThreatCorrection4.GetComponent<Toggle>().isOn == false) { properc4 = false; correctc4 = true; }
 
-        if (ThreatCorrection4.GetComponent<Toggle>().isOn == false &&
-                (tCorrectionDataA.corrections[0].isCorrect == 1) ||
-                (tCorrectionDataA.corrections[1].isCorrect == 1) ||
-                (tCorrectionDataA.corrections[2].isCorrect == 1))
-        {
-            properc4 = false;
-            correctc4 = true;
 
-            
-        }
-        
-        
-        //Si acierta todo los proper threats de la lista (Marcando los toggle correctos) seapunta 3 y se va a showCorrections
-        if (correctc1 == true && correctc2 == true && correctc3 == true && correctc4 == false && properc1 == false && properc2 == false && properc3 == false && properc4 == false)
+        if (correctc1 == true && correctc2 == true && correctc3 == true && correctc4 == true && properc4 == true)
         {
+            Debug.Log("Salida 1");
+            Debug.Log("Apropiados" + properc1 + "  " + properc2 + "   " + properc3 + "   " + properc4);
+            Debug.Log("Pulsado" + correctc1 + "  " + correctc2 + "   " + correctc3 + "   " + correctc4);
             propercCount = propercCount + 1;
             correctionsScore = correctionsScore + propercCount;
             cScoreDisplayText.text = correctionsScore.ToString();
-            hideCorrectionsPanel();
-            ShowThreats();
-        }
-
-        if (correctc4 == true && properc1 == false && properc2 == false && properc3 == false)
-        {
-            propercCount = propercCount + 1;
-            correctionsScore = correctionsScore + propercCount;
-            cScoreDisplayText.text = correctionsScore.ToString();
+            Debug.Log("deberia ejecutar showThreats");
             cleanCorrectionsToggles();
             hideCorrectionsPanel();
-            ShowThreats();
+            needToChangeLevel();
+            tryAgain();
+
         }
-        if ((correctc1 == true) && (correctc2 == true) && (correctc3 == true) && (correctc4 == true))
+
+        else if (correctc1 == true && correctc2 == true && correctc3 == true && correctc4 == true && properc4 != true)
+
         {
+            Debug.Log("Salida 2");
+            Debug.Log("Apropiados" + properc1 + "  " + properc2 + "   " + properc3 + "   " + properc4);
+            Debug.Log("Pulsado" + correctc1 + "  " + correctc2 + "   " + correctc3 + "   " + correctc4);
+
             if (properc1 == true) { propercCount = propercCount + 1; }
             if (properc2 == true) { propercCount = propercCount + 1; }
             if (properc3 == true) { propercCount = propercCount + 1; }
+
+
             correctionsScore = correctionsScore + propercCount;
             cScoreDisplayText.text = correctionsScore.ToString();
-            cleanCorrectionsToggles();
-            hideCorrectionsPanel();
-            ShowThreats();
+            needToChangeLevel();
+            tryAgain();
+
         }
-                
-            cleanCorrectionsToggles();
+        else
+        {
+            Debug.Log("Salida 3");
+            Debug.Log("Apropiados" + properc1 + "  " + properc2 + "   " + properc3 + "   " + properc4);
+            Debug.Log("Pulsado" + correctc1 + "  " + correctc2 + "   " + correctc3 + "   " + correctc4);
             hideCorrectionsPanel();
             SetThreatErrorPanel();
-       
+
+        }
+
+                      
     }
 
     /////////////////////////////////////////////////////////
@@ -619,6 +618,57 @@ public class GameThreatControl : MonoBehaviour
         ThreatCorrection3.GetComponentInChildren<Toggle>().isOn = false;
         ThreatCorrection4.GetComponentInChildren<Toggle>().isOn = false;
     }
+
+    public void tryAgain()
+    {
+        Debug.Log("Intentar de nuevo sin error");
+        checkButton.SetActive(false);
+        readyButton.SetActive(true);
+        
+        hideCorrectionsPanel();
+        hideThreatErrorPanel();
+        
+        ShowThreats();
+        cleanThreatToggles();
+        cleanCorrectionsToggles();
+       
+
+    }
+    public void ErrorTryAgain()
+    {
+        Debug.Log("Intentar de nuevo si Error");
+        checkButton.SetActive(false);
+        readyButton.SetActive(true);
+        ShowThreats();
+        hideThreatErrorPanel();
+    }
+    public void needToChangeLevel()
+    {
+    if (threatsScore > 50 && correctionsScore > 30)
+        {
+            playerLevel = 2;
+
+            string conn1 = "URI=file:" + Application.dataPath + "/plugins/insector.db";
+            IDbConnection dbconn1;
+            dbconn1 = (IDbConnection)new SqliteConnection(conn1);
+            dbconn1.Open();
+            IDbCommand dbcmd1 = dbconn1.CreateCommand();
+
+            string sqlQuery1 = "UPDATE PLAYER SET PLAYER_LEVEL =" + playerLevel + " WHERE PLAYER_ID ='" + playerName + "';";
+            Debug.Log(sqlQuery1);
+            dbcmd1.CommandText = sqlQuery1;
+            IDataReader reader1 = dbcmd1.ExecuteReader();
+
+
+            reader1.Close();
+            reader1 = null;
+            dbcmd1.Dispose();
+            dbcmd1 = null;
+            dbconn1.Close();
+            dbconn1 = null;
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
