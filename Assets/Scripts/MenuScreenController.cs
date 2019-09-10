@@ -12,6 +12,7 @@ public class MenuScreenController : MonoBehaviour
     public GameObject StartInsecTor;
     public GameObject RegisterButton;
     public GameObject ScrollText;
+    public GameObject ScrollGlossary;
     
 
     public string tempPlayerName;
@@ -135,8 +136,23 @@ public class MenuScreenController : MonoBehaviour
         }
         else
         {
+            ScrollGlossary.gameObject.SetActive(false);
             ScrollText.gameObject.SetActive(true);
         }
         
+    }
+
+    public void setGlossary()
+    {
+        if (ScrollGlossary.activeSelf is true)
+        {
+            ScrollGlossary.gameObject.SetActive(false);
+        }
+        else
+        {
+            ScrollText.gameObject.SetActive(false);
+            ScrollGlossary.gameObject.SetActive(true);
+        }
+
     }
 }
